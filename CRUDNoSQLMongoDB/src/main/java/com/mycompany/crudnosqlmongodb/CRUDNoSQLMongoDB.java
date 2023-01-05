@@ -6,6 +6,7 @@ package com.mycompany.crudnosqlmongodb;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 
 /**
@@ -23,28 +24,53 @@ public class CRUDNoSQLMongoDB {
             System.out.println("database created");
             //creating collection if it doesnt exists
             //inserting doc to the collection
-            insertUser(db,"users","Hansey","Colombia");
-            insertUser(db,"users","Hansey2","Colombia2");
-            insertUser(db,"users","Hansey3","Colombia3");
-
+            insertUser(db, "users", "Hansey", "Colombia");
+           
+            insertUser(db, "users", "Hansey3", "Colombia3");
+            insertUser(db, "users", "Hansey4", "Colombia4");
+          //  showCollection(db,"users");
+            searchByName(db,"users","Hansey2");
         }
+        
+        
     }
 
     public static MongoClient createConnection() {
-        System.out.println("test");
-        MongoClient mongo = null;
-        mongo = new MongoClient("localhost", 27017);
+        MongoClient mongo = new MongoClient("localhost", 27017);
         return mongo;
     }
-    
-    public static void insertUser(DB db, String collection,String name,String country){
-    
+
+    public static void insertUser(DB db, String collection, String name, String country) {
         DBCollection colect = db.getCollection(collection);
         //Create doc and insert received info
         BasicDBObject document = new BasicDBObject();
-        document.put("name",name);
-         document.put("country",country);
-         colect.insert(document);
-         
+        document.put("name", name);
+        document.put("country", country);
+        colect.insert(document);
+
+    }
+    //show all docs of user's collection
+    public static void showCollection(DB db, String collection){
+        DBCollection collect = db.getCollection(collection);
+        
+        DBCursor cursor = collect.find();
+        
+        while(cursor.hasNext()){
+            System.out.println("* "+ cursor.next().get("name") + " - " + cursor.curr().get("country"));
+        }
+    }
+  //show docs by name
+    public static void searchByName(DB db, String collection, String name){
+        DBCollection collect = db.getCollection(collection);
+        
+        //creating query with name
+        BasicDBObject query = new BasicDBObject();
+        query.put("name", name);
+        
+        DBCursor cursor = collect.find(query);
+        while(cursor.hasNext()){
+            System.out.println("* " + cursor.next().get("name") + " - " + cursor.curr().get("country"));
+        }
+    
     }
 }
