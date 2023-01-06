@@ -17,22 +17,25 @@ public class CRUDNoSQLMongoDB {
 
     public static void main(String[] args) {
         MongoClient mongo = createConnection();
-
         //if doesnt exists the database we create it
         if (mongo != null) {
             DB db = mongo.getDB("Test");
             System.out.println("database created");
             //creating collection if it doesnt exists
             //inserting doc to the collection
-            insertUser(db, "users", "Hansey", "Colombia");
-           
-            insertUser(db, "users", "Hansey3", "Colombia3");
-            insertUser(db, "users", "Hansey4", "Colombia4");
-          //  showCollection(db,"users");
-            searchByName(db,"users","Hansey2");
+            //           insertUser(db, "users", "Hansey", "Colombia");
+
+            //          insertUser(db, "users", "Hansey3", "Colombia3");
+            //       insertUser(db, "users", "Hansey4", "Colombia4");
+            
+            //searchByName(db, "users", "Hansey2");
+            System.out.println("before");
+             showCollection(db,"users");
+            updateDoc(db,"users","Hansey");
+            System.out.println("after"); 
+            showCollection(db,"users");
         }
-        
-        
+
     }
 
     public static MongoClient createConnection() {
@@ -49,28 +52,45 @@ public class CRUDNoSQLMongoDB {
         colect.insert(document);
 
     }
+
     //show all docs of user's collection
-    public static void showCollection(DB db, String collection){
+    public static void showCollection(DB db, String collection) {
         DBCollection collect = db.getCollection(collection);
-        
+
         DBCursor cursor = collect.find();
-        
-        while(cursor.hasNext()){
-            System.out.println("* "+ cursor.next().get("name") + " - " + cursor.curr().get("country"));
+
+        while (cursor.hasNext()) {
+            System.out.println("* " + cursor.next().get("name") + " - " + cursor.curr().get("country"));
         }
     }
-  //show docs by name
-    public static void searchByName(DB db, String collection, String name){
+    //show docs by name
+
+    public static void searchByName(DB db, String collection, String name) {
         DBCollection collect = db.getCollection(collection);
-        
+
         //creating query with name
         BasicDBObject query = new BasicDBObject();
         query.put("name", name);
-        
+
         DBCursor cursor = collect.find(query);
-        while(cursor.hasNext()){
+        while (cursor.hasNext()) {
             System.out.println("* " + cursor.next().get("name") + " - " + cursor.curr().get("country"));
         }
-    
+
+    }
+    public static void updateDoc(DB db, String collection, String name){
+        DBCollection collect = db.getCollection(collection);
+        
+        //information to remplace
+        BasicDBObject updateCountry = new BasicDBObject();
+        updateCountry.append("$set", new BasicDBObject().append("country", "checoloskavia"));
+        
+        //search the doc in the collection
+        
+        BasicDBObject searchByName = new BasicDBObject();
+        searchByName.append("name",name);
+        
+        //make update
+        collect.updateMulti(searchByName, updateCountry);
     }
 }
