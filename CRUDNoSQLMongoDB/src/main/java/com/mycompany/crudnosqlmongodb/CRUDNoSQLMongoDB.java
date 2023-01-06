@@ -15,82 +15,109 @@ import com.mongodb.MongoClient;
  */
 public class CRUDNoSQLMongoDB {
 
-    public static void main(String[] args) {
-        MongoClient mongo = createConnection();
-        //if doesnt exists the database we create it
-        if (mongo != null) {
-            DB db = mongo.getDB("Test");
-            System.out.println("database created");
-            //creating collection if it doesnt exists
-            //inserting doc to the collection
-            //           insertUser(db, "users", "Hansey", "Colombia");
-
-            //          insertUser(db, "users", "Hansey3", "Colombia3");
-            //       insertUser(db, "users", "Hansey4", "Colombia4");
+ public static void main(String[]args) {
+        
+        MongoClient mongo = crearConexion();
+        
+        // SI NO EXISTE LA BASE DE DATOS LA CREAMOS
+        if(mongo != null) {
+            DB db = mongo.getDB("Pruebas");
             
-            //searchByName(db, "users", "Hansey2");
-            System.out.println("before");
-             showCollection(db,"users");
-            updateDoc(db,"users","Hansey");
-            System.out.println("after"); 
-            showCollection(db,"users");
+            //System.out.println("BASE DE DATOS CREADA");
+            // CREA UNA COLECCION(TABLA) SI NO EXISTE E
+            // INSERTA EL DOCUMENTO(REGISTRO) A LA COLECCION
+            //insertarUsuario(db, "usuarios", "hansey", "Colombia");
+            //insertarUsuario(db, "usuarios", "hansey2", "Colombia2");
+            //insertarUsuario(db, "usuarios", "hansey3", "Colombia3");
+            
+            //mostrarColeccion(db, "usuarios");
+            //buscarPorNombre(db, "usuarios", "hansey");
+            
+            //System.out.println("ANTES DEL UPDATE");
+            //mostrarColeccion(db, "usuarios");
+            //actualizarDocumento(db, "usuarios", "hansey");
+            //System.out.println("DESPUES DEL UPDATE");
+            //mostrarColeccion(db, "usuarios");
+            
+            //System.out.println("ANTES DEL DELETE");
+            //mostrarColeccion(db, "usuarios");
+            //borrarDocumento(db, "usuarios", "Colombia");
+            //System.out.println("DESPUES DEL DELETE");
+            //mostrarColeccion(db, "usuarios");
         }
-
+        
     }
-
-    public static MongoClient createConnection() {
-        MongoClient mongo = new MongoClient("localhost", 27017);
+    
+    // METODO PARA CREAR LA CONEXION A MONGODB
+    public static MongoClient crearConexion() {
+        System.out.println("PRUEBA CONEXION MONGODB");
+        
+        MongoClient mongo = null;
+        
+        mongo = new MongoClient("localhost", 27017);
+        
         return mongo;
     }
-
-    public static void insertUser(DB db, String collection, String name, String country) {
-        DBCollection colect = db.getCollection(collection);
-        //Create doc and insert received info
-        BasicDBObject document = new BasicDBObject();
-        document.put("name", name);
-        document.put("country", country);
-        colect.insert(document);
-
+    
+    // METODO PARA INSERTAR UN DOCUMENTO (REGISTRO)
+    public static void insertarUsuario(DB db, String coleccion, String nombre, String pais) {
+        DBCollection colec = db.getCollection(coleccion);
+        
+        // CREA EL DOCUMENTO(REGISTRO) E INSERTA LA INFORMACION RECIBIDA
+        BasicDBObject documento = new BasicDBObject();
+        documento.put("nombre", nombre);
+        documento.put("pais", pais);
+        
+        colec.insert(documento);
+        
     }
-
-    //show all docs of user's collection
-    public static void showCollection(DB db, String collection) {
-        DBCollection collect = db.getCollection(collection);
-
-        DBCursor cursor = collect.find();
-
-        while (cursor.hasNext()) {
-            System.out.println("* " + cursor.next().get("name") + " - " + cursor.curr().get("country"));
+    
+    // MUESTRA TODOS LOS DOCUMENTOS DE LA COLECCION USUARIOS
+    public static void mostrarColeccion(DB db, String coleccion) {
+        DBCollection colec = db.getCollection(coleccion);
+        
+        DBCursor cursor = colec.find();
+        
+        while(cursor.hasNext()) {
+            System.out.println("* "+ cursor.next().get("nombre") + " - " + cursor.curr().get("pais"));
         }
     }
-    //show docs by name
-
-    public static void searchByName(DB db, String collection, String name) {
-        DBCollection collect = db.getCollection(collection);
-
-        //creating query with name
-        BasicDBObject query = new BasicDBObject();
-        query.put("name", name);
-
-        DBCursor cursor = collect.find(query);
-        while (cursor.hasNext()) {
-            System.out.println("* " + cursor.next().get("name") + " - " + cursor.curr().get("country"));
+    
+    // MUESTRA TODOS LOS DOCUMENTOS DE LA COLECCION USUARIOS QUE COINCIDAN CON EL NOMBRE
+    public static void buscarPorNombre(DB db, String coleccion, String nombre) {
+        DBCollection colect = db.getCollection(coleccion);
+        
+        // CREAMOS LA CONSULTA CON EL CAMPO NOMBRE
+        BasicDBObject consulta = new BasicDBObject();
+        consulta.put("nombre", nombre);
+        
+        // BUSCA Y MUESTRA TODOS LOS DOCUMENTOS QUE COINCIDAN CON LA CONSULTA
+        DBCursor cursor = colect.find(consulta);
+        while(cursor.hasNext()) {
+            System.out.println("-- " + cursor.next().get("nombre") + " - " + cursor.curr().get("pais"));
         }
-
     }
-    public static void updateDoc(DB db, String collection, String name){
-        DBCollection collect = db.getCollection(collection);
+    
+    // METODO PARA ACTUALIZAR UN DOCUMENTO (REGISTRO)
+    public static void actualizarDocumento(DB db, String coleccion, String nombre) {
+        DBCollection colec = db.getCollection(coleccion);
         
-        //information to remplace
-        BasicDBObject updateCountry = new BasicDBObject();
-        updateCountry.append("$set", new BasicDBObject().append("country", "checoloskavia"));
+        // SENTENCIA CON LA INFORMACION A REMPLAZAR
+        BasicDBObject actualizarPais = new BasicDBObject();
+        actualizarPais.append("$set", new BasicDBObject().append("pais", "Peru"));
         
-        //search the doc in the collection
+        // BUSCA EL DOCUMENTO EN LA COLECCION
+        BasicDBObject buscarPorNombre = new BasicDBObject();
+        buscarPorNombre.append("nombre", nombre);
         
-        BasicDBObject searchByName = new BasicDBObject();
-        searchByName.append("name",name);
+        // REALIZA EL UPDATE
+        colec.updateMulti(buscarPorNombre, actualizarPais);
+    }
+    
+    // METODO PARA ELIMINAR UN DOCUMENTO (REGISTRO)
+    public static void borrarDocumento(DB db, String coleccion, String nombre) {
+        DBCollection colec = db.getCollection(coleccion);
         
-        //make update
-        collect.updateMulti(searchByName, updateCountry);
+        colec.remove(new BasicDBObject().append("pais", nombre));
     }
 }
